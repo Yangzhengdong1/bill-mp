@@ -45,9 +45,12 @@ service.interceptors.response.use(response => {
   }
   const { response } = error;
   if (response) {
-    console.log(response.data);
     const message = response.data.message ? response.data.message : '接口出错';
     app.$u.toast(message);
+    if (response.status === 403) {
+      uni.clearStorageSync('user_message');
+      uni.redirectTo({url: '/pages/login/login'});
+    }
   }
   return Promise.reject(error);
 });

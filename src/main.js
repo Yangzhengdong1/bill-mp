@@ -3,10 +3,11 @@ import App from "./App";
 import "./uni.promisify.adaptor";
 import axios from "axios";
 import uView from 'uview-ui';
+import Loading from './components/loading.vue';
 require('./utils/axios');
 Vue.use(uView);
 Vue.prototype.$http = axios;
-
+Vue.component('loading', Loading);
 Vue.config.productionTip = false;
 
 App.mpType = "app";

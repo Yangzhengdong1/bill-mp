@@ -35,6 +35,7 @@
               :placeholderStyle="placeholderStyle"
               clearable
               v-model="loginParams.username"
+              @confirm="pwdFocus = true"
             ></u--input>
             <u--input
               placeholder="请输入密码"
@@ -42,30 +43,31 @@
               :customStyle="inputCustomStyle"
               :placeholderStyle="placeholderStyle"
               clearable
-              v-model="loginParams.password"
+              :focus="pwdFocus"
               type="password"
+              v-model="loginParams.password"
+              @blur="pwdFocus = false"
+              @confirm="handleLogin"
             ></u--input>
           </div>
         </div>
       </div>
-      <!-- <button @click="handleTest">点击</button> -->
     </div>
     <!-- #ifdef MP-WEIXIN-->
     <div class="login-footer">
       <p>
         <i :style="[{ backgroundImage: `url(${loginTypeIcon})` }]"></i>
-        <span @click="handleChangeLoginType">{{ loginTypeText }}</span>
+        <span @click="wxLogin = !wxLogin">{{ loginTypeText }}</span>
       </p>
     </div>
     <!-- #endif -->
+    <loading :visible="loadingVisible" />
   </div>
 </template>
 
 <script>
 import iconToBase64 from '@/utils/iconToBase64';
-import { login, test } from '../../api/login.service';
-import { getBillList } from '../../api/bill.service.js';
-import jsencrypt from '../../utils/jsencrypt';
+import { login } from '@/api/login.service';
 const inputCustomStyle = {
   height: '90rpx',
   backgroundColor: '#f3f3f3',
@@ -78,6 +80,7 @@ export default {
   name: 'login',
   data() {
     return {
+      pwdFocus: false,
       loginParams: { password: '', username: '' },
       inputCustomStyle,
       placeholderStyle,
@@ -89,34 +92,12 @@ export default {
       wxLogin: false,
       // #endif
       iconToBase64,
-      userMessage: {}
+      userMessage: {},
+      loadingVisible: false
     };
   },
   onLoad() {
-    const userMessage = uni.getStorageSync('user_message');
-    if (userMessage) {
-      uni.redirectTo({ url: '/pages/index/index' });
-      this.userMessage = userMessage;
-    }
-    // #ifdef MP-WEIXIN
-    const code = uni.getStorageSync('login_code');
-    if (code) {
-      this.loginCode = code;
-    } else {
-      uni.login({
-        provider: 'weixin',
-        success: (res) => {
-          if (res.errMsg === 'login:ok') {
-            uni.setStorageSync('login_code', res.code);
-            this.loginCode = res.code;
-            console.log(res, '获取code成功');
-          } else {
-            console.log('获取登录code失败');
-          }
-        }
-      });
-    }
-    // #endif
+    this.initData();
   },
   computed: {
     loginTypeIcon() {
@@ -127,31 +108,76 @@ export default {
     }
   },
   methods: {
-    async handleTest() {
-      const result = await getBillList({pageNum: 1, pageSize: 10});
-      console.log(result);
-    },
+    /**
+     * @description: 登录网络请求
+     * @param {*} params {code/iv/encryptedData || password/username}
+     * @return {*} null
+     */
     async login(params) {
+      this.loadingVisible = true;
       try {
         const { data } = await login(params);
+        this.loadingVisible = false;
         if (data && data.code === 0) {
-          console.log('登录成功');
+          // console.log('登录成功');
           this.userMessage = data.data;
           uni.setStorageSync('user_message', data.data);
           setTimeout(() => {
-                      uni.redirectTo({
-            url: '/pages/index/index'
-          });
+            uni.redirectTo({
+              url: '/pages/index/index'
+            });
           }, 500);
         } else {
           this.$u.toast(data.message);
           console.error('登录失败');
         }
       } catch (error) {
+        this.loadingVisible = false;
         console.log(error.response, '请求错误');
       }
     },
-    async handleLogin() {
+
+    /**
+     * @description: 初始化一些需要用到的数据
+     */
+    initData() {
+      const userMessage = uni.getStorageSync('user_message');
+      if (userMessage) {
+        uni.redirectTo({ url: '/pages/index/index' });
+        this.userMessage = userMessage;
+      }
+      // #ifdef MP-WEIXIN
+      this.initLoginCode();
+      // #endif
+    },
+
+    /**
+     * @description: 初始化登录code
+     */
+    initLoginCode() {
+      const code = uni.getStorageSync('login_code');
+      if (code) {
+        this.loginCode = code;
+      } else {
+        uni.login({
+          provider: 'weixin',
+          success: (res) => {
+            if (res.errMsg === 'login:ok') {
+              uni.setStorageSync('login_code', res.code);
+              this.loginCode = res.code;
+              // console.log(res, '获取code成功');
+            } else {
+              console.log('获取登录code失败');
+            }
+          }
+        });
+      }
+    },
+
+    /**
+     * @description: 处理登录逻辑
+     */
+    handleLogin() {
       let params;
       // #ifdef MP-WEIXIN
       if (!this.wxLogin) {
@@ -165,11 +191,12 @@ export default {
             const { iv, encryptedData } = res;
             params = { code: this.loginCode, iv, encryptedData };
             this.login(params);
-            console.log('登录完毕');
+            // console.log('登录完毕');
             uni.setStorageSync('login_code', '');
             this.loginCode = '';
+            this.initLoginCode();
           } else {
-            console.log('获取用户授权失败');
+            // console.log('获取用户授权失败');
           }
         },
         fail: (err) => {
@@ -179,9 +206,14 @@ export default {
       });
       // #endif
       // #ifdef H5
+      if (!this.loginParams.password || !this.loginParams.username) {
+        this.$u.toast('用户名或密码不能为空');
+        return;
+      }
       this.login(this.loginParams);
       // #endif
     },
+
     handleChangeLoginType() {
       if (this.wxLogin) {
         this.$u.toast('账号登录功能正在开发中，敬请期待');
@@ -341,5 +373,11 @@ export default {
 .magnify {
   transition: scale 1s;
   scale: 1;
+}
+
+/deep/ .uni-input-wrapper {
+  .uni-input-input:-webkit-autofill {
+    transition: background-color 5000s ease-in-out 0s;
+  }
 }
 </style>
