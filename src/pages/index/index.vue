@@ -122,6 +122,7 @@
       keyName="label"
     ></u-picker>
     <loading :visible="loadingVisible"/>
+    <tabbar/>
   </div>
 </template>
 
@@ -133,7 +134,6 @@ import {
   billTypes,
   recordList
 } from '../../utils/constants';
-import loading from '../../components/loading.vue';
 const btnStyle = {
   border: 0,
   width: '200rpx',
@@ -144,7 +144,6 @@ const btnStyle = {
 
 export default {
   name: 'index',
-  components: { loading },
   data() {
     return {
       payShow: false,
