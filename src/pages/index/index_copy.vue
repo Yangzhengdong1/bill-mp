@@ -33,6 +33,54 @@
           <p></p>
         </div>
       </div>
+      <div class="record">
+        <div class="record-box">
+          <div
+            class="record-item"
+            v-for="(item, value) in recordList"
+            :key="value"
+            v-show="!(item.bindValue === 'payType' && params.billType === 0)"
+          >
+            <span class="title">{{ item.title }}</span>
+            <div class="record-ele">
+              <div class="input-box" v-if="item.type === 'input'">
+                <u--input
+                  :placeholder="placeholderComput(item.bindValue)"
+                  border="none"
+                  v-model="params[item.bindValue]"
+                  :type="item.bindValue === 'amount' ? 'digit' : ''"
+                  :customStyle="{ width: '200rpx' }"
+                  maxlength="15"
+                  @change="change(item.bindValue)"
+                ></u--input>
+              </div>
+              <div v-else class="select-box">
+                <span
+                  @click="
+                    item.bindValue === 'billType'
+                      ? (billShow = true)
+                      : (payShow = true)
+                  "
+                  >{{
+                    item.bindValue === 'payType'
+                      ? selectLabelPay
+                      : selectLabelBill
+                  }}</span
+                >
+                <i></i>
+              </div>
+            </div>
+          </div>
+          <u-button
+            type="primary"
+            text="保存"
+            iconColor="#42cac4"
+            :customStyle="btnStyle"
+            @click="handleAddBill"
+          ></u-button>
+        </div>
+      </div>
+    <button @click="handleTest">点击我</button>
 
       <div class="bill-list">
         <scroll-view scroll-y class="scroll-Y">
@@ -123,6 +171,22 @@ export default {
       billList: [],
       loadingVisible: false
     };
+  },
+  computed: {
+    format() {
+      let currentDate;
+      const time = new Date();
+      // 年
+      const Y = time.getFullYear();
+      // 月
+      const M = time.getMonth() + 1;
+      // 日
+      const D = time.getDate();
+      currentDate = `${Y} 年 ${M > 10 ? M : '0' + M} 月 ${
+        D > 10 ? D : '0' + D
+      } 号`;
+      return currentDate;
+    }
   },
   created() {
     this.getBillList({
