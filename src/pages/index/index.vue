@@ -11,24 +11,24 @@
     <div class="main">
       <div class="billboard">
         <div class="disbursement">
-          <span>{{ '-' || 1000 }}</span>
+          <span>{{ "-" || 1000 }}</span>
           <span>本月支出(元)</span>
         </div>
         <div class="income">
-          <span>{{ '-' || 12 }}</span>
+          <span>{{ "-" || 12 }}</span>
           <span>本月收入(元)</span>
         </div>
       </div>
       <div class="billboard-day">
         <div class="day-left">
-          {{ params.dateValue | date('yyyy年mm月dd号') }}
+          {{ billParams.dateValue | date("yyyy年mm月dd号") }}
         </div>
         <div class="day-right">
           <p class="day-income">
-            <span>收</span><span>{{ '-' || '' }}</span>
+            <span>收</span><span>{{ "-" || "" }}</span>
           </p>
           <p class="day-disbursement">
-            <span>支</span><span>{{ '-' }}</span>
+            <span>支</span><span>{{ "-" }}</span>
           </p>
           <p></p>
         </div>
@@ -47,189 +47,147 @@
         </scroll-view>
       </div>
     </div>
+
+    <u-popup
+      :show="submitPopupVisible"
+      @close="close"
+      @open="open"
+      mode="center"
+      class="submit-popup"
+    >
+      <view class="bill-type-box submit-box">
+        <span class="title">账单类型</span>
+        <u-radio-group
+          v-model="billParams.billType"
+          placement="row"
+          label="账单类型"
+          @change="groupChange"
+        >
+          <u-radio
+            :customStyle="{ marginBottom: '8px' }"
+            v-for="(item, index) in billTypes"
+            :key="index"
+            :label="item.label"
+            :name="item.value"
+            labelSize="12"
+            @change="radioChange"
+          >
+          </u-radio>
+        </u-radio-group>
+      </view>
+      <view class="pay-type-box submit-box">
+        <span class="title">支付方式</span>
+        <u-radio-group
+          v-model="billParams.payType"
+          placement="row"
+          @change="groupChange"
+        >
+          <u-radio
+            :customStyle="{ marginBottom: '8px' }"
+            v-for="(item, index) in payTypes"
+            :key="index"
+            :label="item.label"
+            :name="item.value"
+            labelSize="12"
+            @change="radioChange"
+          >
+          </u-radio>
+        </u-radio-group>
+      </view>
+      <view class="amount-box submit-box">
+        <span class="title">金额</span>
+        <u--input
+          placeholder="请输入金额"
+          border="bottom"
+          type="number"
+          clearable
+          v-model="billParams.amount"
+          @change="change"
+        ></u--input>
+      </view>
+      <view class="remark-box submit-box">
+        <span class="title">备注</span>
+        <u--input
+          placeholder="请输入备注"
+          border="bottom"
+          clearable
+          v-model="billParams.remark"
+          @change="change"
+        ></u--input>
+      </view>
+      <u-button
+        type="primary"
+        text="保存"
+        iconColor="#42cac4"
+        :customStyle="btnStyle"
+        @click="handleAddBill"
+      ></u-button>
+    </u-popup>
     <!-- 时间日期选择器 -->
     <u-datetime-picker
       :show="dateShow"
-      v-model="params.dateValue"
+      v-model="billParams.dateValue"
       mode="date"
     ></u-datetime-picker>
-    <!-- 账单类型选择器 -->
-    <u-picker
-      :show="billShow"
-      :columns="billTypes"
-      title="账单类型"
-      :closeOnClickOverlay="true"
-      @confirm="confirm($event, 'bill')"
-      @cancel="billShow = false"
-      keyName="label"
-    ></u-picker>
-    <!-- 支付方式选择器 -->
-    <u-picker
-      :show="payShow"
-      :columns="payTypes"
-      title="支付方式"
-      :closeOnClickOverlay="true"
-      @confirm="confirm($event, 'pay')"
-      @cancel="payShow = false"
-      keyName="label"
-    ></u-picker>
-    <loading :visible="loadingVisible"/>
-    <tabbar/>
+    <loading :visible="loadingVisible" />
+    <tabbar @edit="submitPopupVisible = true" />
   </div>
 </template>
 
 <script>
-import iconToBase64 from '../../utils/iconToBase64';
-import { addBill, getBillList, test } from '../../api/bill.service';
-import {
-  payTypes,
-  billTypes,
-  recordList
-} from '../../utils/constants';
+import iconToBase64 from "@/utils/iconToBase64";
+import { addBill, getBillList, test } from "@/api/bill.service";
+import { payTypes, billTypes } from "@/utils/constants";
 const btnStyle = {
   border: 0,
-  width: '200rpx',
-  'border-radius': '20rpx',
-  background: 'linear-gradient(45deg, #42cac4, #ff6e81)',
-  'margin-top': '40rpx'
+  width: "200rpx",
+  "border-radius": "20rpx",
+  background: "linear-gradient(45deg, #42cac4, #ff6e81)",
+  "margin-top": "40rpx",
 };
 
 export default {
-  name: 'index',
+  name: "index",
   data() {
     return {
-      payShow: false,
-      billShow: false,
       payTypes,
       billTypes,
       dateShow: false,
-      params: {
+      billParams: {
         payType: 0,
         billType: 1,
         amount: null,
-        remark: '',
-        dateValue: Number(new Date())
+        remark: "",
+        dateValue: Number(new Date()),
       },
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        date: '2023-08'
+        date: "2023-08",
       },
-      recordList,
+      submitPopupVisible: false,
       btnStyle,
       iconToBase64,
-      selectLabelPay: '支付宝',
-      selectLabelBill: '支出',
       billList: [],
-      loadingVisible: false
+      loadingVisible: false,
     };
   },
   created() {
-    this.getBillList({
-        pageNum: 1,
-        pageSize: 10,
-        date: '2023-09'
-      });
+    this.getBillList(this.queryParams);
   },
   methods: {
-    async handleTest() {
-      const res = await test();
-      console.log(res);
+    getBillList(params) {
+      getBillList(params).then((res) => {
+        console.log(res, "resssssssss");
+      });
     },
-    /**
-     * @description: 新增账单请求
-     * @return {*} 无返回值
-     */
-    async addBill() {
-      try {
-        const { data } = await addBill(this.params);
-        if (data && data.code === 0) {
-          this.$u.toast('新增账单成功');
-          this.params.remark = '';
-          this.params.amount = null;
-          this.getBillList(this.queryParams);
-        } else {
-          this.$u.toast(data.message);
-        }
-      } catch (error) {
-        console.log(error.response, '请求错误');
-      }
-    },
-    async getBillList(params) {
-      // params.date = uni.$u.timeFormat(this.timestamp, 'yyyy-mm-dd');
-      try {
-        const { data } = await getBillList(params);
-        if (data && data.code === 0) {
-          this.billList = data.data;
-        } else {
-          this.$u.toast(data.message);
-        }
-      } catch (error) {
-        console.log(error.response, '请求错误');
-      }
-    },
-    change(type) {
-      console.log(type);
-    },
-    placeholderComput(type) {
-      return type === 'remark' ? '写点备注' : '金额';
-    },
-    confirm(e, type) {
-      console.log(e, type);
-      switch (type) {
-        case 'pay':
-          this.params.payType = e.value[0].value;
-          this.selectLabelPay = e.value[0].label;
-          this.payShow = false;
-          break;
-        case 'bill':
-          this.params.billType = e.value[0].value;
-          this.selectLabelBill = e.value[0].label;
-          this.billShow = false;
-          break;
-        default:
-          break;
-      }
-    },
-    typeComputed(type) {
-      let label;
-      switch (type) {
-        case 'payType':
-          label = this.payTypes[0].filter(
-            (item) => item.value === this.params[type]
-          )[0].label;
-          break;
-        case 'billType':
-          label = this.billTypes[0].filter(
-            (item) => item.value === this.params[type]
-          )[0].label;
-          break;
-        default:
-          break;
-      }
-      this.selectLabel = label;
-      // return label;
-    },
-
-    /**
-     * @description: 新增账单
-     */
-    handleAddBill() {
-      // this.loadingVisible = true;
-      // setTimeout(() => {
-      //   this.loadingVisible = false;
-      // }, 10000);
-      // return;
-      const { remark, payType, billType, amount } = this.params;
-      const params = [remark, payType, billType, amount];
-      if (params.includes('')) {
-        this.$u.toast('金额或备注信息不能为空');
-        return;
-      }
-      this.params.payType = billType === 0 ? 4 : payType;
-      this.addBill();
-    }
-  }
+    close() {},
+    open() {},
+    groupChange() {},
+    radioChange() {},
+    change() {},
+    handleAddBill() {},
+  },
 };
 </script>
 
@@ -373,43 +331,6 @@ export default {
         }
       }
     }
-    .record {
-      border-radius: 20rpx;
-      // background-color: #dadadac3;
-      // height: 300px;
-      font-size: 28rpx;
-      padding: 8rpx;
-      // padding-bottom: 20rpx;
-      box-shadow: 0 0 30px 0 rgba(95, 109, 130, 0.4);
-      .record-box {
-        border: 4rpx solid;
-        border-radius: 20rpx;
-        padding-bottom: 20rpx;
-      }
-      .record-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        height: 60rpx;
-        padding: 0 40rpx;
-        .record-ele {
-          .select-box {
-            display: flex;
-            align-items: center;
-            > i {
-              display: inline-block;
-              border: 4rpx solid #000;
-              width: 14rpx;
-              height: 14rpx;
-              border-bottom: 0;
-              border-left: 0;
-              transform: rotate(45deg);
-              margin-left: 20rpx;
-            }
-          }
-        }
-      }
-    }
     .bill-list {
       // max-height: 400rpx;
       padding: 40rpx 0;
@@ -458,12 +379,46 @@ export default {
     }
   }
 }
+.submit-popup {
+  /deep/.u-popup__content {
+    padding: 40rpx 30rpx;
+    border-radius: 20rpx;
+    font-size: 12px;
+    .submit-box {
+      display: flex;
+      align-items: center;
+      height: 60rpx;
+      .u-radio {
+        margin-right: 24rpx;
+        margin-bottom: 0px !important;
+        // width: 160rpx;
+        &:last-child {
+          margin: 0;
+        }
+      }
+      .u-input {
+        padding: 0 !important;
+        height: 100%;
+      }
+      .u-radio__icon-wrap {
+        width: 28rpx !important;
+        height: 28rpx !important;
+      }
+    }
+    .amount-box {
+      margin-bottom: 20rpx;
+    }
+    .title {
+      width: 120rpx;
+    }
+  }
+}
 .hidden {
   display: none;
 }
 /deep/.u-input__content {
   input {
-    text-align: right !important;
+    // text-align: right !important;
     font-size: 28rpx;
   }
 }

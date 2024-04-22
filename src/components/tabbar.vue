@@ -23,7 +23,7 @@
         >{{ item.title }}</span
       >
     </div>
-    <div class="edit-btn" v-if="editVisible">
+    <div class="edit-btn" v-if="editVisible" @click="handleEditBtn">
       <i></i>
       <i></i>
     </div>
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import icons from '../utils/iconToBase64';
+import icons from '@/utils/iconToBase64';
 export default {
   name: 'tabbar',
   props: {
@@ -67,6 +67,11 @@ export default {
   created() {
     this.currentPath = getCurrentPages().at(-1).route;
     console.log('路由路由', getCurrentPages().at(-1).route);
+  },
+  methods: {
+    handleEditBtn() {
+      this.$emit("edit");
+    }
   }
 };
 </script>
