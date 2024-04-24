@@ -4,7 +4,7 @@
       class="tabbar-item"
       v-for="item in tabbars"
       :key="item.path"
-      @click="currentPath = item.path"
+      @click="handlePageJump(item)"
     >
       <i
         :style="[
@@ -43,13 +43,13 @@ export default {
             title: '明细',
             defaultIcon: icons.detail,
             activeIcon: icons.detailActive,
-            path: 'pages/index/index'
+            path: '/pages/index/index'
           },
           {
             title: '我的',
             defaultIcon: icons.mine,
             activeIcon: icons.mineActive,
-            path: 'pages/mine/mine'
+            path: '/pages/profile/profile'
           }
         ];
       }
@@ -65,10 +65,13 @@ export default {
     };
   },
   created() {
-    this.currentPath = getCurrentPages().at(-1).route;
+    this.currentPath = '/' + getCurrentPages().at(-1).route;
     console.log('路由路由', getCurrentPages().at(-1).route);
   },
   methods: {
+    handlePageJump(item) {
+      this.$emit("jump", item);
+    },
     handleEditBtn() {
       this.$emit("edit");
     }

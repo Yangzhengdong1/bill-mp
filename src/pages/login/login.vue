@@ -116,7 +116,7 @@ export default {
     async login(params) {
       this.loadingVisible = true;
       try {
-        const { data } = await login(params);
+        const data = await login(params);
         this.loadingVisible = false;
         if (data && data.code === 0) {
           // console.log('登录成功');

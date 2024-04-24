@@ -16,7 +16,7 @@ export const test = () => {
 export const login = (param) => {
   const params = JSON.parse(JSON.stringify(param));
   const { password } = params;
-  if (password) {
+  if (!password) {
     // 加密
     params.password = jsencrypt.encryptedData(password);
   }

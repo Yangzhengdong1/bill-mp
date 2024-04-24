@@ -1,3 +1,5 @@
+import icons from "@/utils/iconToBase64";
+
 const payTypes = [
   { label: '微信', value: 1 },
   { label: '支付宝', value: 0 },
@@ -8,6 +10,30 @@ const billTypes = [
   { label: '支出', value: 1 },
   { label: '收入', value: 0 }
 ];
+const sources = [
+  {
+    label: "工资",
+    value: 4
+  },
+  {
+    label: "其他",
+    value: 5
+  }
+];
+const tabbars = [
+  {
+    title: '明细',
+    defaultIcon: icons.detail,
+    activeIcon: icons.detailActive,
+    path: '/pages/index/index'
+  },
+  {
+    title: '我的',
+    defaultIcon: icons.mine,
+    activeIcon: icons.mineActive,
+    path: '/pages/profile/profile'
+  }
+]
 
 const recordList = [
   {
@@ -35,5 +61,7 @@ const recordList = [
 export {
   payTypes,
   billTypes,
-  recordList
+  recordList,
+  tabbars,
+  sources
 };

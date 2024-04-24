@@ -50,7 +50,7 @@
 
     <u-popup
       :show="submitPopupVisible"
-      @close="close"
+      @close="submitPopupVisible = false"
       @open="open"
       mode="center"
       class="submit-popup"
@@ -61,7 +61,7 @@
           v-model="billParams.billType"
           placement="row"
           label="账单类型"
-          @change="groupChange"
+          @change="billGroupChange"
         >
           <u-radio
             :customStyle="{ marginBottom: '8px' }"
@@ -70,26 +70,23 @@
             :label="item.label"
             :name="item.value"
             labelSize="12"
-            @change="radioChange"
           >
           </u-radio>
         </u-radio-group>
       </view>
       <view class="pay-type-box submit-box">
-        <span class="title">支付方式</span>
+        <span class="title">{{ billParams.billType === 0 ? "收入来源" : "支付方式" }}</span>
         <u-radio-group
           v-model="billParams.payType"
           placement="row"
-          @change="groupChange"
         >
           <u-radio
             :customStyle="{ marginBottom: '8px' }"
-            v-for="(item, index) in payTypes"
+            v-for="(item, index) in list"
             :key="index"
             :label="item.label"
             :name="item.value"
             labelSize="12"
-            @change="radioChange"
           >
           </u-radio>
         </u-radio-group>
@@ -102,7 +99,6 @@
           type="number"
           clearable
           v-model="billParams.amount"
-          @change="change"
         ></u--input>
       </view>
       <view class="remark-box submit-box">
@@ -112,7 +108,6 @@
           border="bottom"
           clearable
           v-model="billParams.remark"
-          @change="change"
         ></u--input>
       </view>
       <u-button
@@ -120,7 +115,7 @@
         text="保存"
         iconColor="#42cac4"
         :customStyle="btnStyle"
-        @click="handleAddBill"
+        @click="handleSubmit"
       ></u-button>
     </u-popup>
     <!-- 时间日期选择器 -->
@@ -130,20 +125,21 @@
       mode="date"
     ></u-datetime-picker>
     <loading :visible="loadingVisible" />
-    <tabbar @edit="submitPopupVisible = true" />
+    <tabbar :tabbars="tabbars" @jump="handlePageJump" @edit="submitPopupVisible = true" />
   </div>
 </template>
 
 <script>
 import iconToBase64 from "@/utils/iconToBase64";
 import { addBill, getBillList, test } from "@/api/bill.service";
-import { payTypes, billTypes } from "@/utils/constants";
+import { payTypes, billTypes, tabbars, sources } from "@/utils/constants";
 const btnStyle = {
   border: 0,
   width: "200rpx",
   "border-radius": "20rpx",
-  background: "linear-gradient(45deg, #42cac4, #ff6e81)",
-  "margin-top": "40rpx",
+  // background: "linear-gradient(45deg, #42cac4, #ff6e81)",
+  background: "rgb(0,139,139)",
+  "margin-top": "40rpx"
 };
 
 export default {
@@ -154,39 +150,76 @@ export default {
       billTypes,
       dateShow: false,
       billParams: {
-        payType: 0,
+        payType: 1,
         billType: 1,
         amount: null,
         remark: "",
-        dateValue: Number(new Date()),
+        dateValue: Number(new Date())
       },
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        date: "2023-08",
+        date: ""
       },
       submitPopupVisible: false,
       btnStyle,
       iconToBase64,
       billList: [],
       loadingVisible: false,
+      tabbars
     };
   },
   created() {
     this.getBillList(this.queryParams);
   },
+  computed: {
+    list() {
+      return this.billParams.billType === 0 ? sources : payTypes;
+    }
+  },
   methods: {
     getBillList(params) {
-      getBillList(params).then((res) => {
+      getBillList(params).then(res => {
+        console.log(res);
+        if (res && res.code === 0) {
+          this.billList = res.data.records;
+        } else {
+          this.$u.toast(res.message);
+        }
         console.log(res, "resssssssss");
       });
     },
+
+    addBill(params) {
+      this.loadingVisible = true;
+      addBill(params).then(res => {
+        this.$u.toast(res.message);
+        this.loadingVisible = false;
+        this.submitPopupVisible = false;
+        this.getBillList(this.queryParams);
+      })
+    },
+
     close() {},
     open() {},
-    groupChange() {},
-    radioChange() {},
-    change() {},
-    handleAddBill() {},
+    billGroupChange() {
+      this.$nextTick(() => {
+        this.billParams.payType = this.billParams.billType === 0 ? 4 : 1;
+      })
+    },
+    handleSubmit() {
+      if (!this.billParams.amount || !this.billParams.remark) {
+        this.$u.toast("请输入金额或备注");
+        return;
+      }
+      this.addBill(this.billParams);
+    },
+    handlePageJump(tabbar) {
+      console.log(tabbar);
+      uni.redirectTo({
+        url: tabbar.path
+      });
+    },
   },
 };
 </script>
@@ -381,6 +414,8 @@ export default {
 }
 .submit-popup {
   /deep/.u-popup__content {
+    min-width: 716rpx;
+    box-sizing: border-box;
     padding: 40rpx 30rpx;
     border-radius: 20rpx;
     font-size: 12px;
@@ -403,6 +438,13 @@ export default {
       .u-radio__icon-wrap {
         width: 28rpx !important;
         height: 28rpx !important;
+        .u-icon__icon {
+          width: 12rpx;
+          height: 12rpx;
+          background-color: #fff;
+          text-indent: -9999px;
+          border-radius: 50%;
+        }
       }
     }
     .amount-box {

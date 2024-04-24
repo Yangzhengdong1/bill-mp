@@ -36,7 +36,7 @@ service.interceptors.response.use(response => {
     delete response.config;
     delete response.request;
     delete response.statusText;
-    return response;
+    return response.data;
 }, error => {
   console.log('响应错误拦截', error.response);
   if (!error.response) {
