@@ -35,7 +35,6 @@
         <u--input
           placeholder="请输入用户名称"
           border="bottom"
-          type="number"
           clearable
           v-model="bindParams.username"
         ></u--input>
@@ -45,6 +44,7 @@
         <u--input
           placeholder="请输入密码"
           border="bottom"
+          type="password"
           clearable
           v-model="bindParams.password"
         ></u--input>
@@ -62,6 +62,7 @@
 </template>
 
 <script>
+import { bind } from '@/api/login.service';
 const btnStyle = {
   border: 0,
   width: "200rpx",
@@ -81,12 +82,12 @@ export default {
         password: ""
       },
       settings: [
-        // #ifdef MP-WEIXIN
+        //#1ifdef MP-WEIXIN
         {
           title: "账户绑定",
           iconName: "edit-pen-fill"
         },
-        // #endif
+        //#endif
         {
           title: "账号设置",
           iconName: "",
@@ -96,6 +97,11 @@ export default {
     };
   },
   methods: {
+    bind(params) {
+      bind(params).then(res => {
+        console.log(res);
+      });
+    },
     handlePageJump(tabbar) {
       uni.redirectTo({
         url: tabbar.path
@@ -110,7 +116,14 @@ export default {
           break;
       }
     },
-    handleSubmit() {}
+    handleSubmit() {
+      const { username, password } = this.bindParams;
+      if (!username || !password) {
+        this.$u.toast("请输入用户名或密码");
+        return;
+      }
+      this.bind(this.bindParams);
+    }
   }
 };
 </script>

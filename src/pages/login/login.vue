@@ -66,27 +66,27 @@
 </template>
 
 <script>
-import iconToBase64 from '@/utils/iconToBase64';
-import { login } from '@/api/login.service';
+import iconToBase64 from "@/utils/iconToBase64";
+import { login } from "@/api/login.service";
 const inputCustomStyle = {
-  height: '90rpx',
-  backgroundColor: '#f3f3f3',
-  padding: '0 30rpx',
-  marginBottom: '50rpx',
-  borderRadius: '30rpx'
+  height: "90rpx",
+  backgroundColor: "#f3f3f3",
+  padding: "0 30rpx",
+  marginBottom: "50rpx",
+  borderRadius: "30rpx"
 };
-const placeholderStyle = 'fontSize: 24rpx; color: rgb(192, 196, 204)';
+const placeholderStyle = "fontSize: 24rpx; color: rgb(192, 196, 204)";
 export default {
-  name: 'login',
+  name: "login",
   data() {
     return {
       pwdFocus: false,
-      loginParams: { password: '', username: '' },
+      loginParams: { password: "", username: "" },
       inputCustomStyle,
       placeholderStyle,
       // #ifdef MP-WEIXIN
       wxLogin: true,
-      loginCode: '',
+      loginCode: "",
       // #endif
       // #ifdef H5
       wxLogin: false,
@@ -104,7 +104,7 @@ export default {
       return this.wxLogin ? iconToBase64.lock : iconToBase64.miniWX;
     },
     loginTypeText() {
-      return this.wxLogin ? '账号密码登录' : '微信一键登录';
+      return this.wxLogin ? "账号密码登录" : "微信一键登录";
     }
   },
   methods: {
@@ -121,19 +121,19 @@ export default {
         if (data && data.code === 0) {
           // console.log('登录成功');
           this.userMessage = data.data;
-          uni.setStorageSync('user_message', data.data);
+          uni.setStorageSync("user_message", data.data);
           setTimeout(() => {
             uni.redirectTo({
-              url: '/pages/index/index'
+              url: "/pages/index/index"
             });
           }, 500);
         } else {
           this.$u.toast(data.message);
-          console.error('登录失败');
+          console.error("登录失败");
         }
       } catch (error) {
         this.loadingVisible = false;
-        console.log(error.response, '请求错误');
+        console.log(error.response, "请求错误");
       }
     },
 
@@ -141,9 +141,9 @@ export default {
      * @description: 初始化一些需要用到的数据
      */
     initData() {
-      const userMessage = uni.getStorageSync('user_message');
+      const userMessage = uni.getStorageSync("user_message");
       if (userMessage) {
-        uni.redirectTo({ url: '/pages/index/index' });
+        uni.redirectTo({ url: "/pages/index/index" });
         this.userMessage = userMessage;
       }
       // #ifdef MP-WEIXIN
@@ -155,19 +155,19 @@ export default {
      * @description: 初始化登录code
      */
     initLoginCode() {
-      const code = uni.getStorageSync('login_code');
+      const code = uni.getStorageSync("login_code");
       if (code) {
         this.loginCode = code;
       } else {
         uni.login({
-          provider: 'weixin',
+          provider: "weixin",
           success: (res) => {
-            if (res.errMsg === 'login:ok') {
-              uni.setStorageSync('login_code', res.code);
+            if (res.errMsg === "login:ok") {
+              uni.setStorageSync("login_code", res.code);
               this.loginCode = res.code;
               // console.log(res, '获取code成功');
             } else {
-              console.log('获取登录code失败');
+              console.log("获取登录code失败");
             }
           }
         });
@@ -185,29 +185,29 @@ export default {
         return;
       }
       uni.getUserProfile({
-        desc: '用户登录',
+        desc: "用户登录",
         success: async (res) => {
-          if (res && res.errMsg === 'getUserProfile:ok') {
+          if (res && res.errMsg === "getUserProfile:ok") {
             const { iv, encryptedData } = res;
             params = { code: this.loginCode, iv, encryptedData };
             this.login(params);
             // console.log('登录完毕');
-            uni.setStorageSync('login_code', '');
-            this.loginCode = '';
+            uni.setStorageSync("login_code", "");
+            this.loginCode = "";
             this.initLoginCode();
           } else {
             // console.log('获取用户授权失败');
           }
         },
         fail: (err) => {
-          this.$u.toast('授权失败');
-          console.log(err, '用户拒绝授权');
+          this.$u.toast("授权失败");
+          console.log(err, "用户拒绝授权");
         }
       });
       // #endif
       // #ifdef H5
       if (!this.loginParams.password || !this.loginParams.username) {
-        this.$u.toast('用户名或密码不能为空');
+        this.$u.toast("用户名或密码不能为空");
         return;
       }
       this.login(this.loginParams);
@@ -216,7 +216,7 @@ export default {
 
     handleChangeLoginType() {
       if (this.wxLogin) {
-        this.$u.toast('账号登录功能正在开发中，敬请期待');
+        this.$u.toast("账号登录功能正在开发中，敬请期待");
         return;
       }
       this.wxLogin = !this.wxLogin;
