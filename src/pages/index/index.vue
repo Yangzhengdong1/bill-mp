@@ -197,7 +197,7 @@ export default {
         this.loadingVisible = false;
         this.submitPopupVisible = false;
         this.getBillList(this.queryParams);
-      })
+      });
     },
 
     close() {},
@@ -205,7 +205,7 @@ export default {
     billGroupChange() {
       this.$nextTick(() => {
         this.billParams.payType = this.billParams.billType === 0 ? 4 : 1;
-      })
+      });
     },
     handleSubmit() {
       if (!this.billParams.amount || !this.billParams.remark) {
@@ -219,8 +219,8 @@ export default {
       uni.redirectTo({
         url: tabbar.path
       });
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -412,7 +412,7 @@ export default {
     }
   }
 }
-.submit-popup {
+/* .submit-popup { */
   /deep/.u-popup__content {
     min-width: 716rpx;
     box-sizing: border-box;
@@ -446,6 +446,10 @@ export default {
           border-radius: 50%;
         }
       }
+      .input-placeholder{
+        font-size: 24rpx;
+      }
+
     }
     .amount-box {
       margin-bottom: 20rpx;
@@ -453,8 +457,9 @@ export default {
     .title {
       width: 120rpx;
     }
+
   }
-}
+/* } */
 .hidden {
   display: none;
 }

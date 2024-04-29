@@ -5,7 +5,7 @@
     <span class="span3"></span>
   </div> -->
   <!-- 转圈 -->
-  <div id="loading" v-show="visible">
+  <div id="loading" :style="{display: visible ? 'flex' : 'none'}" class="loading">
     <div class="lds-ellipsis">
       <div></div>
       <div></div>
@@ -28,13 +28,14 @@ export default {
 </script>
 
 <style scoped lang="scss">
-#loading {
+#loading,
+.loading {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(#000000, 0.1);
+  background-color: rgba(#000000, 0.2);
   z-index: 99999;
   display: flex;
   justify-content: center;
