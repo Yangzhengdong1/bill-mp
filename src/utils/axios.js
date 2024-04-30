@@ -40,13 +40,13 @@ service.interceptors.response.use(response => {
 }, error => {
   console.log('响应错误拦截', error.response);
   if (!error.response) {
-    app.$u.toast('接口报错咯');
+    app.$toast('接口报错咯');
     return;
   }
   const { response } = error;
   if (response) {
     const message = response.data.message ? response.data.message : '接口出错';
-    app.$u.toast(message);
+    app.$toast(message);
     if (response.status === 403) {
       uni.clearStorageSync('user_message');
       uni.redirectTo({url: '/pages/login/login'});

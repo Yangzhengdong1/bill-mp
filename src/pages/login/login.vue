@@ -128,7 +128,7 @@ export default {
             });
           }, 500);
         } else {
-          this.$u.toast(data.message);
+          this.$toast(data.message);
           console.error("登录失败");
         }
       } catch (error) {
@@ -200,14 +200,14 @@ export default {
           }
         },
         fail: (err) => {
-          this.$u.toast("授权失败");
+          this.$toast("授权失败");
           console.log(err, "用户拒绝授权");
         }
       });
       // #endif
       // #ifdef H5
       if (!this.loginParams.password || !this.loginParams.username) {
-        this.$u.toast("用户名或密码不能为空");
+        this.$toast("用户名或密码不能为空");
         return;
       }
       this.login(this.loginParams);
@@ -216,11 +216,14 @@ export default {
 
     handleChangeLoginType() {
       if (this.wxLogin) {
-        this.$u.toast("账号登录功能正在开发中，敬请期待");
+        this.$toast("账号登录功能正在开发中，敬请期待");
         return;
       }
       this.wxLogin = !this.wxLogin;
     }
+  },
+  options: {
+    styleIsolation: "shared"
   }
 };
 </script>

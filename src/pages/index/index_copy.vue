@@ -208,12 +208,12 @@ export default {
       try {
         const { data } = await addBill(this.params);
         if (data && data.code === 0) {
-          this.$u.toast('新增账单成功');
+          this.$toast('新增账单成功');
           this.params.remark = '';
           this.params.amount = null;
           this.getBillList(this.queryParams);
         } else {
-          this.$u.toast(data.message);
+          this.$toast(data.message);
         }
       } catch (error) {
         console.log(error.response, '请求错误');
@@ -226,7 +226,7 @@ export default {
         if (data && data.code === 0) {
           this.billList = data.data;
         } else {
-          this.$u.toast(data.message);
+          this.$toast(data.message);
         }
       } catch (error) {
         console.log(error.response, '请求错误');
@@ -287,7 +287,7 @@ export default {
       const { remark, payType, billType, amount } = this.params;
       const params = [remark, payType, billType, amount];
       if (params.includes('')) {
-        this.$u.toast('金额或备注信息不能为空');
+        this.$toast('金额或备注信息不能为空');
         return;
       }
       this.params.payType = billType === 0 ? 4 : payType;

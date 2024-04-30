@@ -11,11 +11,11 @@
     <div class="main">
       <div class="billboard">
         <div class="disbursement">
-          <span>{{ "-" || 1000 }}</span>
+          <span>{{ totalMoney.amountMoth.outAmount || "-" }}</span>
           <span>本月支出(元)</span>
         </div>
         <div class="income">
-          <span>{{ "-" || 12 }}</span>
+          <span>{{ totalMoney.amountMoth.inAmount || "-" }}</span>
           <span>本月收入(元)</span>
         </div>
       </div>
@@ -25,10 +25,10 @@
         </div>
         <div class="day-right">
           <p class="day-income">
-            <span>收</span><span>{{ "-" || "" }}</span>
+            <span>收</span><span>{{ totalMoney.amountDay.inAmount || "-" }}</span>
           </p>
           <p class="day-disbursement">
-            <span>支</span><span>{{ "-" }}</span>
+            <span>支</span><span>{{ totalMoney.amountDay.outAmount || "-" }}</span>
           </p>
           <p></p>
         </div>
@@ -41,7 +41,7 @@
               <p>{{ item.remark }}</p>
               <!-- <p>08:00</p> -->
             </div>
-            <div class="money">{{ item.amount }}</div>
+            <div class="money" :style="{color: item.type === 1 ? '#42cac4' : '#ff6e81'}"> {{ item.amount }} </div>
           </div>
           <div class="bottom-ele bill-item"></div>
         </scroll-view>
@@ -131,7 +131,7 @@
 
 <script>
 import iconToBase64 from "@/utils/iconToBase64";
-import { addBill, getBillList, test } from "@/api/bill.service";
+import { addBill, getBillList } from "@/api/bill.service";
 import { payTypes, billTypes, tabbars, sources } from "@/utils/constants";
 const btnStyle = {
   border: 0,
@@ -166,7 +166,8 @@ export default {
       iconToBase64,
       billList: [],
       loadingVisible: false,
-      tabbars
+      tabbars,
+      totalMoney: {}
     };
   },
   created() {
@@ -183,17 +184,17 @@ export default {
         console.log(res);
         if (res && res.code === 0) {
           this.billList = res.data.records;
+          this.totalMoney = res.data.amount;
         } else {
-          this.$u.toast(res.message);
+          this.$toast(res.message);
         }
-        console.log(res, "resssssssss");
       });
     },
 
     addBill(params) {
       this.loadingVisible = true;
       addBill(params).then(res => {
-        this.$u.toast(res.message);
+        this.$toast(res.message);
         this.loadingVisible = false;
         this.submitPopupVisible = false;
         this.getBillList(this.queryParams);
@@ -209,7 +210,7 @@ export default {
     },
     handleSubmit() {
       if (!this.billParams.amount || !this.billParams.remark) {
-        this.$u.toast("请输入金额或备注");
+        this.$toast("请输入金额或备注");
         return;
       }
       this.addBill(this.billParams);
@@ -313,7 +314,7 @@ export default {
         > span {
           &:first-child {
             font-weight: 600;
-            font-size: 48rpx;
+            font-size: 40rpx;
           }
         }
       }

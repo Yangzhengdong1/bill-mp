@@ -5,9 +5,9 @@ baseUrl = '/httpProxy';
 // #ifdef MP-WEIXIN
 if (process.env.NODE_ENV === 'development') {
   console.log('开发环境');
-  baseUrl = 'http://192.168.18.170:8889';
+  baseUrl = process.env.VUE_APP_DEV_BASE_URL;
 } else {
-  baseUrl = 'http://111.229.233.21:8083';
+  baseUrl = process.env.VUE_APP_PROD_BASE_URL;
   console.log('生产环境');
 }
 // #endif
