@@ -1,8 +1,8 @@
 const path = require("path");
 
-const resolve = dir => path.resolve(__dirname, dir);
+const resolve = (dir) => path.resolve(__dirname, dir);
 module.exports = {
-  transpileDependencies: ['uview-ui'],
+  transpileDependencies: ["uview-ui"],
   configureWebpack: {
     resolve: {
       alias: {
@@ -13,7 +13,7 @@ module.exports = {
       warnings: false,
       assets: false,
       chunks: false,
-      modules: false,
+      modules: false
     }
   },
   devServer: {
@@ -27,11 +27,11 @@ module.exports = {
     },
 
     proxy: {
-      '/httpProxy': {
-        target: 'http://192.168.18.170:8889', // 开发环境后台接口域名
+      "/httpProxy": {
+        target: "http://192.168.18.170:8889", // 开发环境后台接口域名
         changeOrigin: true, //是否跨域
         pathRewrite: {
-          '^/httpProxy': ''
+          "^/httpProxy": ""
         }
       }
     }

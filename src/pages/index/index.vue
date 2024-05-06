@@ -25,10 +25,12 @@
         </div>
         <div class="day-right">
           <p class="day-income">
-            <span>收</span><span>{{ totalMoney.amountDay.inAmount || "-" }}</span>
+            <span>收</span
+            ><span>{{ totalMoney.amountDay.inAmount || "-" }}</span>
           </p>
           <p class="day-disbursement">
-            <span>支</span><span>{{ totalMoney.amountDay.outAmount || "-" }}</span>
+            <span>支</span
+            ><span>{{ totalMoney.amountDay.outAmount || "-" }}</span>
           </p>
           <p></p>
         </div>
@@ -41,7 +43,12 @@
               <p>{{ item.remark }}</p>
               <!-- <p>08:00</p> -->
             </div>
-            <div class="money" :style="{color: item.type === 1 ? '#42cac4' : '#ff6e81'}"> {{ item.amount }} </div>
+            <div
+              class="money"
+              :style="{ color: item.type === 1 ? '#42cac4' : '#ff6e81' }"
+            >
+              {{ item.amount }}
+            </div>
           </div>
           <div class="bottom-ele bill-item"></div>
         </scroll-view>
@@ -75,11 +82,10 @@
         </u-radio-group>
       </view>
       <view class="pay-type-box submit-box">
-        <span class="title">{{ billParams.billType === 0 ? "收入来源" : "支付方式" }}</span>
-        <u-radio-group
-          v-model="billParams.payType"
-          placement="row"
-        >
+        <span class="title">{{
+          billParams.billType === 0 ? "收入来源" : "支付方式"
+        }}</span>
+        <u-radio-group v-model="billParams.payType" placement="row">
           <u-radio
             :customStyle="{ marginBottom: '8px' }"
             v-for="(item, index) in list"
@@ -96,7 +102,7 @@
         <u--input
           placeholder="请输入金额"
           border="bottom"
-          type="number"
+          type="digit"
           clearable
           v-model="billParams.amount"
         ></u--input>
@@ -125,7 +131,11 @@
       mode="date"
     ></u-datetime-picker>
     <loading :visible="loadingVisible" />
-    <tabbar :tabbars="tabbars" @jump="handlePageJump" @edit="submitPopupVisible = true" />
+    <tabbar
+      :tabbars="tabbars"
+      @jump="handlePageJump"
+      @edit="submitPopupVisible = true"
+    />
   </div>
 </template>
 
@@ -176,11 +186,17 @@ export default {
   computed: {
     list() {
       return this.billParams.billType === 0 ? sources : payTypes;
+    },
+    getDate() {
+      return (
+        `${+new Date().getFullYear()}-${(+new Date().getMonth() + 1 < 10 ? '0' + (+new Date().getMonth() + 1) : (+new Date().getMonth() + 1))}-${+new Date().getDate() < 10 ? '0' + +new Date().getDate() : +new Date().getDate() }`
+      );
     }
   },
   methods: {
     getBillList(params) {
-      getBillList(params).then(res => {
+      params.date = this.getDate;
+      getBillList(params).then((res) => {
         console.log(res);
         if (res && res.code === 0) {
           this.billList = res.data.records;
@@ -193,7 +209,7 @@ export default {
 
     addBill(params) {
       this.loadingVisible = true;
-      addBill(params).then(res => {
+      addBill(params).then((res) => {
         this.$toast(res.message);
         this.loadingVisible = false;
         this.submitPopupVisible = false;
@@ -414,52 +430,50 @@ export default {
   }
 }
 /* .submit-popup { */
-  /deep/.u-popup__content {
-    min-width: 716rpx;
-    box-sizing: border-box;
-    padding: 40rpx 30rpx;
-    border-radius: 20rpx;
-    font-size: 12px;
-    .submit-box {
-      display: flex;
-      align-items: center;
-      height: 60rpx;
-      .u-radio {
-        margin-right: 24rpx;
-        margin-bottom: 0px !important;
-        // width: 160rpx;
-        &:last-child {
-          margin: 0;
-        }
+/deep/.u-popup__content {
+  min-width: 716rpx;
+  box-sizing: border-box;
+  padding: 40rpx 30rpx;
+  border-radius: 20rpx;
+  font-size: 12px;
+  .submit-box {
+    display: flex;
+    align-items: center;
+    height: 60rpx;
+    .u-radio {
+      margin-right: 24rpx;
+      margin-bottom: 0px !important;
+      // width: 160rpx;
+      &:last-child {
+        margin: 0;
       }
-      .u-input {
-        padding: 0 !important;
-        height: 100%;
-      }
-      .u-radio__icon-wrap {
-        width: 28rpx !important;
-        height: 28rpx !important;
-        .u-icon__icon {
-          width: 12rpx;
-          height: 12rpx;
-          background-color: #fff;
-          text-indent: -9999px;
-          border-radius: 50%;
-        }
-      }
-      .input-placeholder{
-        font-size: 24rpx;
-      }
-
     }
-    .amount-box {
-      margin-bottom: 20rpx;
+    .u-input {
+      padding: 0 !important;
+      height: 100%;
     }
-    .title {
-      width: 120rpx;
+    .u-radio__icon-wrap {
+      width: 28rpx !important;
+      height: 28rpx !important;
+      .u-icon__icon {
+        width: 12rpx;
+        height: 12rpx;
+        background-color: #fff;
+        text-indent: -9999px;
+        border-radius: 50%;
+      }
     }
-
+    .input-placeholder {
+      font-size: 24rpx;
+    }
   }
+  .amount-box {
+    margin-bottom: 20rpx;
+  }
+  .title {
+    width: 120rpx;
+  }
+}
 /* } */
 .hidden {
   display: none;
