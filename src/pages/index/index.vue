@@ -4,18 +4,18 @@
       <div class="mask"></div>
       <h2>
         <span>我的账本</span>
-        <i :style="[{ backgroundImage: `url(${iconToBase64.user})` }]"></i>
+        <i @click="handlePageJump({path: '/pages/profile/profile'})" :style="[{ backgroundImage: `url(${iconToBase64.user})` }]"></i>
       </h2>
       <span>坚持记账</span>
     </div>
     <div class="main">
       <div class="billboard">
         <div class="disbursement">
-          <span>{{ totalMoney.amountMoth.outAmount || "-" }}</span>
+          <span>{{ totalMoney.amountMoth && totalMoney.amountMoth.outAmount || "-" }}</span>
           <span>本月支出(元)</span>
         </div>
         <div class="income">
-          <span>{{ totalMoney.amountMoth.inAmount || "-" }}</span>
+          <span>{{ totalMoney.amountMoth && totalMoney.amountMoth.inAmount || "-" }}</span>
           <span>本月收入(元)</span>
         </div>
       </div>
@@ -26,11 +26,11 @@
         <div class="day-right">
           <p class="day-income">
             <span>收</span
-            ><span>{{ totalMoney.amountDay.inAmount || "-" }}</span>
+            ><span>{{ totalMoney.amountMoth && totalMoney.amountDay.inAmount || "-" }}</span>
           </p>
           <p class="day-disbursement">
             <span>支</span
-            ><span>{{ totalMoney.amountDay.outAmount || "-" }}</span>
+            ><span>{{ totalMoney.amountMoth && totalMoney.amountDay.outAmount || "-" }}</span>
           </p>
           <p></p>
         </div>
@@ -58,7 +58,6 @@
     <u-popup
       :show="submitPopupVisible"
       @close="submitPopupVisible = false"
-      @open="open"
       mode="center"
       class="submit-popup"
     >
@@ -181,7 +180,10 @@ export default {
     };
   },
   created() {
-    this.getBillList(this.queryParams);
+    // #ifdef H5
+    this.iOSTouchMoveDisabled();
+    // #endif
+    // this.getBillList(this.queryParams);
   },
   computed: {
     list() {
@@ -217,8 +219,19 @@ export default {
       });
     },
 
-    close() {},
-    open() {},
+    /**
+     * @description: 解决 ios 浏览器中上拉下拉出现空白的问题
+     */
+     iOSTouchMoveDisabled() {
+      document.body.addEventListener("touchmove", (e) => {
+      if (e._isScroller) {
+        return;
+      }
+      e.preventDefault();
+    }, {
+      passive: false
+    });
+    },
     billGroupChange() {
       this.$nextTick(() => {
         this.billParams.payType = this.billParams.billType === 0 ? 4 : 1;
@@ -249,7 +262,7 @@ export default {
   justify-content: center;
   overflow: hidden;
   padding: 40rpx 50rpx;
-  height: calc(100vh - 80rpx);
+  height: calc(100vh - 130rpx);
   .top {
     margin: 20rpx 0;
     color: #fff;
@@ -418,6 +431,7 @@ export default {
         }
       }
       .bottom-ele {
+        height: 60rpx;
         background-color: transparent;
       }
     }

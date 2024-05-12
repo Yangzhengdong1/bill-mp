@@ -34,3 +34,15 @@ export const bind = (params) => {
   let url = baseUrl + "/account/bind";
   return axios.post(url, { username, password });
 };
+
+/**
+ * @description: 游客登录
+ * @param {*} data {username/password}
+ * @return {*} 返回 Promise
+ */
+export const visitorLogin = (data) => {
+  const params = JSON.parse(JSON.stringify(data));
+  params.password = aesCipher.encrypt(params.password);
+  let url = baseUrl + "/account/visitor-login";
+  return axios.post(url, params);
+};

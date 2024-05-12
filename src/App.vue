@@ -1,8 +1,15 @@
 <script>
+import { getLocalToken } from "@/utils/util";
+
 export default {
   onLaunch: function () {
   },
   onShow: function () {
+    if (!getLocalToken()) {
+      // uni.navigateTo({
+      //   url: "/pages/login/login"
+      // });
+    }
   },
   onHide: function () {
   }

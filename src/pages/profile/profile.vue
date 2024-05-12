@@ -2,10 +2,10 @@
   <div id="profile" class="profile">
     <div class="user">
       <div class="avatar">
-        <img src="" alt="avatar.jpg" />
+        <img src="https://cdn.uviewui.com/uview/album/1.jpg" alt="avatar.jpg" />
       </div>
       <div class="nickname">
-        <span>nickname</span>
+        <span>{{ getUserMessage.username || '默认昵称' }}</span>
       </div>
     </div>
     <div class="settings">
@@ -23,6 +23,9 @@
           ></u-icon>
         </li>
       </ul>
+    </div>
+    <div class="logout">
+      <span class="logout-bntn" @click="handleLogout">退出</span>
     </div>
     <u-popup
       :show="bindPopupVisible"
@@ -96,8 +99,17 @@ export default {
         password: ""
       },
       settings,
-      loadingVisible: false
+      loadingVisible: false,
+      userInfo: {}
     };
+  },
+  created() {
+    // this.userInfo = this.getUserMessage;
+  },
+  computed: {
+    getUserMessage() {
+      return uni.getStorageSync("user_message");
+    }
   },
   methods: {
     /**
@@ -157,6 +169,11 @@ export default {
         return;
       }
       this.bind(this.bindParams);
+    },
+
+    handleLogout() {
+      uni.clearStorageSync("user_message");
+      uni.redirectTo({ url: "/pages/login/login" });
     }
   }
 };
@@ -172,8 +189,8 @@ export default {
     .avatar {
       margin-right: 20rpx;
       img {
-        width: 130rpx;
-        height: 130rpx;
+        width: 100rpx;
+        height: 100rpx;
         border-radius: 50%;
       }
     }
@@ -229,6 +246,23 @@ export default {
       width: 120rpx;
     }
   }
+  .logout {
+    display: flex;
+    justify-content: center;
+    margin-top: 60rpx;
+    .logout-bntn {
+      display: inline-block;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 24rpx 48rpx;
+      font-size: 24rpx;
+      border-radius: 10rpx;
+      box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s ease;
+    }
+  }
+
   /* } */
 }
 </style>
