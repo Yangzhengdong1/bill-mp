@@ -62,6 +62,9 @@ export default {
       }
       this.$emit("billItemClick", wid);
     }
+  },
+  options: {
+    styleIsolation: "shared"
   }
 };
 </script>
@@ -77,13 +80,13 @@ export default {
   }
   /deep/ .u-swipe-action-item {
     margin-bottom: 30rpx;
-    border-radius: 30rpx;
+    border-radius: 20rpx;
     overflow: hidden;
     .u-swipe-action-item__right__button__wrapper__text {
       font-size: 28rpx !important;
     }
     .u-swipe-action-item__right {
-      border-radius: 0px 36rpx 36rpx 0px;
+      border-radius: 0px 26rpx 26rpx 0px;
       overflow: hidden;
     }
   }
