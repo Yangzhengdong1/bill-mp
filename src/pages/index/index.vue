@@ -4,174 +4,102 @@
       <div class="mask"></div>
       <h2>
         <span>我的账本</span>
-        <i @click="handlePageJump({path: '/pages/profile/profile'})" :style="[{ backgroundImage: `url(${iconToBase64.user})` }]"></i>
+        <i
+          @click="handlePageJump({ path: '/pages/profile/profile' })"
+          :style="[{ backgroundImage: `url(${iconToBase64.user})` }]"
+        ></i>
       </h2>
       <span>坚持记账</span>
     </div>
     <div class="main">
       <div class="billboard">
         <div class="disbursement">
-          <span>{{ totalMoney.amountMoth && totalMoney.amountMoth.outAmount || "-" }}</span>
+          <span>{{
+            (totalMoney.amountMoth && totalMoney.amountMoth.outAmount) || "-"
+          }}</span>
           <span>本月支出(元)</span>
         </div>
         <div class="income">
-          <span>{{ totalMoney.amountMoth && totalMoney.amountMoth.inAmount || "-" }}</span>
+          <span>{{
+            (totalMoney.amountMoth && totalMoney.amountMoth.inAmount) || "-"
+          }}</span>
           <span>本月收入(元)</span>
         </div>
       </div>
       <div class="billboard-day">
         <div class="day-left">
-          {{ billParams.dateValue | date("yyyy年mm月dd号") }}
+          {{ Number(new Date()).dateValue | date("yyyy年mm月dd号") }}
         </div>
         <div class="day-right">
           <p class="day-income">
-            <span>收</span
-            ><span>{{ totalMoney.amountMoth && totalMoney.amountDay.inAmount || "-" }}</span>
+            <span>收</span>
+            <span>{{
+              (totalMoney.amountMoth && totalMoney.amountDay.inAmount) || "-"
+            }}</span>
           </p>
           <p class="day-disbursement">
-            <span>支</span
-            ><span>{{ totalMoney.amountMoth && totalMoney.amountDay.outAmount || "-" }}</span>
+            <span>支</span>
+            <span>
+              {{
+                (totalMoney.amountMoth && totalMoney.amountDay.outAmount) || "-"
+              }}
+            </span>
           </p>
           <p></p>
         </div>
       </div>
-
-      <div class="bill-list">
-        <scroll-view scroll-y class="scroll-Y">
-          <div class="bill-item" v-for="item in billList" :key="item.billId">
-            <div class="remark-date">
-              <p>{{ item.remark }}</p>
-              <!-- <p>08:00</p> -->
-            </div>
-            <div
-              class="money"
-              :style="{ color: item.type === 1 ? '#42cac4' : '#ff6e81' }"
-            >
-              {{ item.amount }}
-            </div>
-          </div>
-          <div class="bottom-ele bill-item"></div>
-        </scroll-view>
-      </div>
+      <bill-list
+        :billList="billList"
+        @swipeItemClick="handleSwipeItemClick"
+        @billItemClick="handleBillItemClick"
+      />
     </div>
-
-    <u-popup
-      :show="submitPopupVisible"
+    <bill-popup
+      :submitPopupVisible="submitPopupVisible"
+      @submit="handleSubmit"
       @close="submitPopupVisible = false"
-      mode="center"
-      class="submit-popup"
-    >
-      <view class="bill-type-box submit-box">
-        <span class="title">账单类型</span>
-        <u-radio-group
-          v-model="billParams.billType"
-          placement="row"
-          label="账单类型"
-          @change="billGroupChange"
-        >
-          <u-radio
-            :customStyle="{ marginBottom: '8px' }"
-            v-for="(item, index) in billTypes"
-            :key="index"
-            :label="item.label"
-            :name="item.value"
-            labelSize="12"
-          >
-          </u-radio>
-        </u-radio-group>
-      </view>
-      <view class="pay-type-box submit-box">
-        <span class="title">{{
-          billParams.billType === 0 ? "收入来源" : "支付方式"
-        }}</span>
-        <u-radio-group v-model="billParams.payType" placement="row">
-          <u-radio
-            :customStyle="{ marginBottom: '8px' }"
-            v-for="(item, index) in list"
-            :key="index"
-            :label="item.label"
-            :name="item.value"
-            labelSize="12"
-          >
-          </u-radio>
-        </u-radio-group>
-      </view>
-      <view class="amount-box submit-box">
-        <span class="title">金额</span>
-        <u--input
-          placeholder="请输入金额"
-          border="bottom"
-          type="digit"
-          clearable
-          v-model="billParams.amount"
-        ></u--input>
-      </view>
-      <view class="remark-box submit-box">
-        <span class="title">备注</span>
-        <u--input
-          placeholder="请输入备注"
-          border="bottom"
-          clearable
-          v-model="billParams.remark"
-        ></u--input>
-      </view>
-      <u-button
-        type="primary"
-        text="保存"
-        iconColor="#42cac4"
-        :customStyle="btnStyle"
-        @click="handleSubmit"
-      ></u-button>
-    </u-popup>
+      ref="billPopupRef"
+    />
     <!-- 时间日期选择器 -->
-    <u-datetime-picker
+    <!-- <u-datetime-picker
       :show="dateShow"
       v-model="billParams.dateValue"
       mode="date"
-    ></u-datetime-picker>
+    ></u-datetime-picker> -->
     <loading :visible="loadingVisible" />
     <tabbar
       :tabbars="tabbars"
       @jump="handlePageJump"
-      @edit="submitPopupVisible = true"
+      @edit="handleTabbleEdit"
     />
   </div>
 </template>
 
 <script>
 import iconToBase64 from "@/utils/iconToBase64";
-import { addBill, getBillList } from "@/api/bill.service";
-import { payTypes, billTypes, tabbars, sources } from "@/utils/constants";
-const btnStyle = {
-  border: 0,
-  width: "200rpx",
-  "border-radius": "20rpx",
-  // background: "linear-gradient(45deg, #42cac4, #ff6e81)",
-  background: "rgb(0,139,139)",
-  "margin-top": "40rpx"
-};
-
+import {
+  addBill,
+  getBillList,
+  getBillDetail,
+  deleteBill
+} from "@/api/bill.service";
+import { tabbars } from "@/utils/constants";
+import { loading } from "@/utils/util.js";
+import billPopup from "./bill-popup.vue";
+import billList from "./bill-list.vue";
 export default {
   name: "index",
+  components: { billPopup, billList },
   data() {
     return {
-      payTypes,
-      billTypes,
+      options: [{ text: "删除", style: { backgroundColor: "red" } }],
       dateShow: false,
-      billParams: {
-        payType: 1,
-        billType: 1,
-        amount: null,
-        remark: "",
-        dateValue: Number(new Date())
-      },
       queryParams: {
         pageNum: 1,
         pageSize: 10,
         date: ""
       },
       submitPopupVisible: false,
-      btnStyle,
       iconToBase64,
       billList: [],
       loadingVisible: false,
@@ -180,24 +108,11 @@ export default {
     };
   },
   created() {
-    // #ifdef H5
-    this.iOSTouchMoveDisabled();
-    // #endif
-    // this.getBillList(this.queryParams);
-  },
-  computed: {
-    list() {
-      return this.billParams.billType === 0 ? sources : payTypes;
-    },
-    getDate() {
-      return (
-        `${+new Date().getFullYear()}-${(+new Date().getMonth() + 1 < 10 ? '0' + (+new Date().getMonth() + 1) : (+new Date().getMonth() + 1))}-${+new Date().getDate() < 10 ? '0' + +new Date().getDate() : +new Date().getDate() }`
-      );
-    }
+    this.getBillList(this.queryParams);
   },
   methods: {
     getBillList(params) {
-      params.date = this.getDate;
+      params.date = uni.$u.timeFormat(+new Date(), "yyyy-mm-dd");
       getBillList(params).then((res) => {
         console.log(res);
         if (res && res.code === 0) {
@@ -219,42 +134,79 @@ export default {
       });
     },
 
-    /**
-     * @description: 解决 ios 浏览器中上拉下拉出现空白的问题
-     */
-     iOSTouchMoveDisabled() {
-      document.body.addEventListener("touchmove", (e) => {
-      if (e._isScroller) {
-        return;
-      }
-      e.preventDefault();
-    }, {
-      passive: false
-    });
-    },
-    billGroupChange() {
-      this.$nextTick(() => {
-        this.billParams.payType = this.billParams.billType === 0 ? 4 : 1;
+    getBillDetail(id) {
+      loading.show();
+      getBillDetail(id).then((res) => {
+        loading.hide();
+        if (res && res.code === 0) {
+          this.$refs.billPopupRef.initData();
+          this.$refs.billPopupRef.billParams = res.data;
+          this.submitPopupVisible = true;
+        } else {
+          this.$toast(res.message);
+        }
       });
     },
-    handleSubmit() {
-      if (!this.billParams.amount || !this.billParams.remark) {
-        this.$toast("请输入金额或备注");
-        return;
-      }
-      this.addBill(this.billParams);
+
+    deleteBill(id) {
+      // this.loadingVisible = true;
+      loading.show("删除中");
+      deleteBill(id).then((res) => {
+        // this.loadingVisible = false;
+        loading.hide();
+        if (res && res.code === 0) {
+          this.getBillList(this.queryParams);
+        }
+        this.$toast(res.message);
+      });
     },
+
+    /**
+     * @description: 新增/更新弹窗按钮确认
+     * @param {*} params
+     */
+    handleSubmit(params) {
+      if (params.wid) {
+        console.log("更新");
+      } else {
+        this.addBill(params);
+      }
+    },
+
     handlePageJump(tabbar) {
-      console.log(tabbar);
       uni.redirectTo({
         url: tabbar.path
       });
+    },
+
+    /**
+     * @description: 查看账单详情
+     * @param {*} id 账单id
+     */
+    handleBillItemClick(id) {
+      this.getBillDetail(id);
+    },
+
+    /**
+     * @description: 左滑删除账单
+     * @param {*} id
+     */
+    handleSwipeItemClick(id) {
+      this.deleteBill(id);
+    },
+
+    /**
+     * @description: 新增账单弹窗
+     */
+    handleTabbleEdit() {
+      this.$refs.billPopupRef.initData();
+      this.submitPopupVisible = true;
     }
   }
 };
 </script>
 
-<style lang="scss" scope>
+<style lang="scss" scoped>
 .content {
   // display: flex;
   flex-direction: column;
@@ -394,114 +346,9 @@ export default {
         }
       }
     }
-    .bill-list {
-      // max-height: 400rpx;
-      padding: 40rpx 0;
-      box-sizing: border-box;
-      overflow: hidden;
-      .scroll-Y {
-        height: 500rpx;
-      }
-      .bill-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 30rpx;
-        width: 100%;
-        height: 100rpx;
-        border-radius: 30rpx;
-        background-color: #efefef;
-        box-sizing: border-box;
-        margin-bottom: 30rpx;
-        &:last-child {
-          margin-bottom: 0;
-        }
-        .remark-date {
-          p {
-            &:first-child {
-              font-weight: 600;
-            }
-            &:last-child {
-              font-size: 24rpx;
-            }
-          }
-        }
-        .money {
-          font-weight: 600;
-        }
-      }
-      .bottom-ele {
-        height: 60rpx;
-        background-color: transparent;
-      }
-    }
-    .income-color {
-      color: #ff6e81;
-    }
-    .disbursement-color {
-      color: #42cac4;
-    }
   }
 }
-/* .submit-popup { */
-/deep/.u-popup__content {
-  min-width: 716rpx;
-  box-sizing: border-box;
-  padding: 40rpx 30rpx;
-  border-radius: 20rpx;
-  font-size: 12px;
-  .submit-box {
-    display: flex;
-    align-items: center;
-    height: 60rpx;
-    .u-radio {
-      margin-right: 24rpx;
-      margin-bottom: 0px !important;
-      // width: 160rpx;
-      &:last-child {
-        margin: 0;
-      }
-    }
-    .u-input {
-      padding: 0 !important;
-      height: 100%;
-    }
-    .u-radio__icon-wrap {
-      width: 28rpx !important;
-      height: 28rpx !important;
-      .u-icon__icon {
-        width: 12rpx;
-        height: 12rpx;
-        background-color: #fff;
-        text-indent: -9999px;
-        border-radius: 50%;
-      }
-    }
-    .input-placeholder {
-      font-size: 24rpx;
-    }
-  }
-  .amount-box {
-    margin-bottom: 20rpx;
-  }
-  .title {
-    width: 120rpx;
-  }
-}
-/* } */
 .hidden {
   display: none;
-}
-/deep/.u-input__content {
-  input {
-    // text-align: right !important;
-    font-size: 28rpx;
-  }
-}
-/deep/ .u-toolbar__title {
-  justify-content: center;
-}
-/deep/ .u-line-1 {
-  display: flex !important;
 }
 </style>

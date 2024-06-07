@@ -25,3 +25,14 @@ export const addBill = params => {
 	let url = baseUrl + "/bill/create";
 	return axios.post(url, params);
 };
+
+export const getBillDetail = id => {
+	let url = baseUrl + `/bill/detail?id=${id}`;
+	return axios.get(url);
+};
+
+export const deleteBill = id => {
+	let url = baseUrl + `/bill/remove/${id}`;
+	return axios.delete(url);
+};
+
