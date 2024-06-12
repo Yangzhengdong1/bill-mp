@@ -5,12 +5,12 @@
         <u-swipe-action-item
           v-for="item in billList"
           :options="options"
-          :key="item.wid"
-          :name="item.wid"
+          :key="item.id"
+          :name="item.id"
           @click="swipeItemClick"
           ref="uSwipeActionItem"
         >
-          <div class="bill-item" @touchend="billItemClick(item.wid)">
+          <div class="bill-item" @touchend="billItemClick(item.id)">
             <div class="remark-date">
               <p>{{ item.remark }}</p>
             </div>

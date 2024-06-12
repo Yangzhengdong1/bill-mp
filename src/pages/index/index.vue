@@ -92,7 +92,6 @@ export default {
   components: { billPopup, billList },
   data() {
     return {
-      options: [{ text: "删除", style: { backgroundColor: "red" } }],
       dateShow: false,
       queryParams: {
         pageNum: 1,

@@ -69,6 +69,9 @@
 				</div>
 			</div>
 		</div>
+		<!-- #ifdef H5 -->
+		<a href="https://beian.miit.gov.cn/" target="_blank" class="miit">赣ICP备2024034568号-1</a>
+		<!-- #endif -->
 		<!-- #ifdef MP-WEIXIN-->
 		<div class="login-footer">
 			<p>
@@ -419,10 +422,16 @@ export default {
   transition: opacity 0.5s ease;
   margin-left: 10rpx;
 }
-.tip {
+.tip,
+.miit {
   opacity: 1;
   font-size: 22rpx;
   font-weight: normal;
   transform: scale(0.83);
+}
+.miit {
+	text-align: center;
+	color: #ccc;
+	text-decoration-line: none;
 }
 </style>
