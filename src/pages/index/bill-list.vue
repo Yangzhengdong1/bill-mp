@@ -3,14 +3,15 @@
     <scroll-view scroll-y class="scroll-Y">
       <u-swipe-action>
         <u-swipe-action-item
-          v-for="item in billList"
+          v-for="(item, index) in billList"
           :options="options"
           :key="item.id"
           :name="item.id"
+          :show="false"
           @click="swipeItemClick"
           ref="uSwipeActionItem"
         >
-          <div class="bill-item" @touchend="billItemClick(item.id)">
+          <div class="bill-item" @touchend="currentIndex = index" @tap="billItemClick(item.id, index)">
             <div class="remark-date">
               <p>{{ item.remark }}</p>
             </div>
@@ -38,7 +39,8 @@ export default {
   },
   data() {
     return {
-      options: [{ text: "删除", style: { backgroundColor: "red" } }]
+      options: [{ text: "删除", style: { backgroundColor: "red" } }, { text: "关闭", style: { backgroundColor: "#ccc" } }],
+      currentIndex: 0
     };
   },
   methods: {
@@ -47,20 +49,24 @@ export default {
      * @param {*} options {index, name}
      */
     swipeItemClick(options) {
-      const { name: id } = options;
+      const { name: id, index } = options;
+      if (index !== 0) {
+        this.$refs.uSwipeActionItem[this.currentIndex].status = "close";
+        return;
+      }
       this.$emit("swipeItemClick", id);
     },
 
     /**
      * @description: 账单 item 触发
-     * @param {*} wid 账单id
+     * @param {*} id 账单id
      */
-    billItemClick(wid) {
+    billItemClick(id) {
       const statusList = this.$refs.uSwipeActionItem.map((item) => item.status);
       if (statusList.some((item) => item === "open")) {
         return;
       }
-      this.$emit("billItemClick", wid);
+      this.$emit("billItemClick", id);
     }
   },
   options: {

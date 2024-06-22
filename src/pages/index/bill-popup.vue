@@ -61,7 +61,7 @@
       </view>
       <u-button
         type="primary"
-        :text="billParams.wid ? '更新' : '保存'"
+        :text="billParams.id ? '更新' : '保存'"
         iconColor="#42cac4"
         :customStyle="btnStyle"
         @click="submit"
@@ -124,8 +124,8 @@ export default {
         this.$toast("请输入金额或备注");
         return;
       }
-      if (!this.billParams.wid) {
-        delete this.billParams.wid;
+      if (!this.billParams.id) {
+        delete this.billParams.id;
       }
       this.$emit("submit", this.billParams);
     },

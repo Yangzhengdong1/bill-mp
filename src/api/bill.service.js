@@ -36,3 +36,8 @@ export const deleteBill = id => {
 	return axios.delete(url);
 };
 
+export const updateBill = params => {
+  let url = baseUrl + "/bill/update";
+  return axios.post(url, params);
+};
+

@@ -81,7 +81,8 @@ import {
   addBill,
   getBillList,
   getBillDetail,
-  deleteBill
+  deleteBill,
+  updateBill
 } from "@/api/bill.service";
 import { tabbars } from "@/utils/constants";
 import { loading } from "@/utils/util.js";
@@ -160,13 +161,25 @@ export default {
       });
     },
 
+    updateBill(params) {
+      this.submitPopupVisible = false;
+      loading.show("更新中");
+      updateBill(params).then(res => {
+        loading.hide();
+        if (res && res.code === 0) {
+          this.getBillList(this.queryParams);
+        }
+        this.$toast(res.message);
+      });
+    },
+
     /**
      * @description: 新增/更新弹窗按钮确认
      * @param {*} params
      */
     handleSubmit(params) {
-      if (params.wid) {
-        console.log("更新");
+      if (params.id) {
+        this.updateBill(params);
       } else {
         this.addBill(params);
       }
